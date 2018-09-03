@@ -1,6 +1,6 @@
-## Node Server Template
+## Node Game Engine
 
-Can be used as an API system, very fast, and compatible with React or Angular
+Node game engine
 
 ## Packages
 
