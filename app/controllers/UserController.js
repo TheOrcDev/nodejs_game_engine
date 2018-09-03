@@ -12,7 +12,7 @@ class UserController {
      */
     test(req, res) {
         const Game = require('./Game.js');
-        const Player = require('../models/MainPlayer.js');
+        const Player = require('../objects/MainPlayer.js');
         const go = new Game('stopped', new Date());
         const play = new Player();
         go.Start();
@@ -67,55 +67,25 @@ class UserController {
      * @return json
      */
     loginUser(req, res) {
+        const self = this;
+
         if (req.body.email && req.body.password) {
             User.authenticate(req.body.email, req.body.password, function(error, user) {
                 if (error || !user) {
                     // Wrong credentials
-                    let err = new Error('Wrong email or password.');
-                    err.status = 401;
-                    return next(err);
+                    self.error('Wrong email or password.', 401);
                 } else {
-
                     // Successful login
                     req.session.userId = user._id;
                     res.json('logged with user id: ' + req.session.userId);
 
-                    const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
-
-                    // event emmited when connected
-                    ws.onopen = function() {
-                        // sending a send event to websocket server
-                        ws.send('User with id: ' + user._id + ' connected');
-
-                        WebSockets[user._id] = ws;
-                        WebSockets[user._id]['user'] = user;
-                    }
-
-                    // event emmited when receiving message
-                    ws.on('message', function() {
-                        console.log(message);
-                    });
-
-                    // event emmited when websocket is closed - on logout
-                    ws.on('close', function(userId) {
-                        console.log(req.session.userId);
-                        delete ws[req.session.userId];
-                        delete WebSockets[req.session.userId];
-
-                        // delete session object
-                        req.session.destroy();
-
-                    });
+                    // Open WebSocket for logged user
+                    self.openWebSocket(user, req);
                 }
             });
 
         } else {
-            // Missing email or password
-            let err = new Error('Email and password are required.');
-            err.status = 401;
-            err = new Error('All fields required.');
-            err.status = 400;
-            return next(err);
+            self.error('All fields required.', 400);
         }
     }
 
@@ -133,6 +103,40 @@ class UserController {
                 return res.redirect('/');
             }
         }
+    }
+
+    openWebSocket(user, req) {
+        const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
+
+        // event emmited when connected
+        ws.onopen = function() {
+            // sending a send event to websocket server
+            ws.send('User with id: ' + user._id + ' connected');
+
+            WebSockets[user._id] = ws;
+            WebSockets[user._id]['user'] = user;
+        }
+
+        // event emmited when receiving message
+        ws.on('message', function() {
+            console.log(message);
+        });
+
+        // event emmited when websocket is closed - on logout
+        ws.on('close', function(userId) {
+            console.log(req.session.userId);
+            delete ws[req.session.userId];
+            delete WebSockets[req.session.userId];
+
+            // delete session object
+            req.session.destroy();
+
+        });
+    }
+
+    error(msg, status) {
+        console.log(msg + ' Status:' + status);
+
     }
 
 }
