@@ -24,7 +24,7 @@ socket.addEventListener('message', function(event) {
     ctx.clearRect(0, 0, 500, 500);
 	
     data.forEach((dat) => {
-    	ctx.fillText('S', dat.x + aaa, dat.y);
+    	ctx.fillText('S', dat.x, dat.y);
     });
 });
 </script>
