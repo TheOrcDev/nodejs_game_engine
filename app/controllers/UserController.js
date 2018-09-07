@@ -11,14 +11,14 @@ class UserController {
      * @return json
      */
     test(req, res) {
-        const Game = require('./Game.js');
-        const Player = require('../objects/MainPlayer.js');
-        const Npc = require('../objects/Npc.js');
-        const go = new Game('stopped', new Date());
-        const play = new Player();
-        go.AddObject(play);
-        
-        go.Start();
+        // const Game = require('./Game.js');
+        // const Player = require('../objects/MainPlayer.js');
+        // const Npc = require('../objects/Npc.js');
+        // const go = new Game('stopped', new Date());
+        // const play = new Player();
+        // go.AddObject(play);
+
+        // go.Start();
 
         // let Canvas = require('canvas'),
         //     Image = Canvas.Image,
@@ -99,10 +99,17 @@ class UserController {
                 } else {
                     // Successful login
                     req.session.userId = user._id;
-                    res.json('logged with user id: ' + req.session.userId);
 
                     // Open WebSocket for logged user
                     self.openWebSocket(user, req);
+
+                    const playerObject = require('../objects/MainPlayer.js');
+                    const Player = new playerObject(user._id);
+
+                    Game.AddObject(Player);
+
+                    res.sendFile('index.html', { 'root': './' });
+
                 }
             });
 
@@ -121,10 +128,12 @@ class UserController {
             // destroy websocket for this specific user
             try {
                 WebSockets[req.session.userId].terminate();
+                delete WebSockets[req.session.userId];
             } catch (e) {
                 return res.redirect('/');
             }
         }
+
     }
 
     openWebSocket(user, req) {

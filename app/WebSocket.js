@@ -34,15 +34,8 @@ wss = new WebSocket.Server({
 WebSockets = [];
 
 wss.on('connection', function(ws) {
-    let intervalCheck = false;
-
     ws.on('message', function(message) {
-
     });
-
-    if (intervalCheck) {
-        return;
-    }
 
     setInterval(function() {
         const sockets = Object.entries(WebSockets);
@@ -57,10 +50,8 @@ wss.on('connection', function(ws) {
         sockets.forEach((socket) => {
             try {
                 ws.send(JSON.stringify(all), function(error) {
-                    if (error == undefined)
-                        return;
-                    else
-                        return;
+                    if (error == undefined) return;
+                    else return;
                 });
             } catch (e) {
                 ws.close();
@@ -68,8 +59,6 @@ wss.on('connection', function(ws) {
         });
 
     }, config.game.fps);
-    intervalCheck = true;
-
 });
 
 /**

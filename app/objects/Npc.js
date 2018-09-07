@@ -40,7 +40,7 @@ class Npc {
 
     Sync() {
         const coordinates = { x: this.x, y: this.y };
-console.log(coordinates);
+        
         WebSockets[this.wsId].x = this.x;
         WebSockets[this.wsId].y = this.y;
         if (WebSockets[this.wsId].readyState === WebSocket.OPEN) {
