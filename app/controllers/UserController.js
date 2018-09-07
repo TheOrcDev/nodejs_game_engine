@@ -13,11 +13,33 @@ class UserController {
     test(req, res) {
         const Game = require('./Game.js');
         const Player = require('../objects/MainPlayer.js');
+        const Npc = require('../objects/Npc.js');
         const go = new Game('stopped', new Date());
         const play = new Player();
-        go.Start();
         go.AddObject(play);
-        res.json('Success! API is working!');
+        
+        go.Start();
+
+        // let Canvas = require('canvas'),
+        //     Image = Canvas.Image,
+        //     canvas = new Canvas(200, 200),
+        //     ctx = canvas.getContext('2d');
+
+        // ctx.font = '30px Impact';
+        // ctx.rotate(.1);
+        // ctx.fillText("aaaaaa!", 50, 100);
+
+        // let te = ctx.measureText('aaaaaa!');
+        // ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        // ctx.beginPath();
+        // ctx.lineTo(50, 102);
+        // ctx.lineTo(50 + te.width, 102);
+        // ctx.stroke();
+
+        // res.setHeader('Content-Type', 'image/png');
+        // canvas.pngStream().pipe(res);
+
+        res.sendFile('index.html', { 'root': './' });
 
     }
 
@@ -106,32 +128,32 @@ class UserController {
     }
 
     openWebSocket(user, req) {
-        const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
+        // const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
 
-        // event emmited when connected
-        ws.onopen = function() {
-            // sending a send event to websocket server
-            ws.send('User with id: ' + user._id + ' connected');
+        // // event emmited when connected
+        // ws.onopen = function() {
+        //     // sending a send event to websocket server
+        //     ws.send('User with id: ' + user._id + ' connected');
 
-            WebSockets[user._id] = ws;
-            WebSockets[user._id]['user'] = user;
-        }
+        //     WebSockets[user._id] = ws;
+        //     WebSockets[user._id]['user'] = user;
+        // }
 
-        // event emmited when receiving message
-        ws.on('message', function() {
-            console.log(message);
-        });
+        // // event emmited when receiving message
+        // ws.on('message', function(message) {
+        //     console.log(message);
+        // });
 
-        // event emmited when websocket is closed - on logout
-        ws.on('close', function(userId) {
-            console.log(req.session.userId);
-            delete ws[req.session.userId];
-            delete WebSockets[req.session.userId];
+        // // event emmited when websocket is closed - on logout
+        // ws.on('close', function(userId) {
+        //     console.log(req.session.userId);
+        //     delete ws[req.session.userId];
+        //     delete WebSockets[req.session.userId];
 
-            // delete session object
-            req.session.destroy();
+        //     // delete session object
+        //     req.session.destroy();
 
-        });
+        // });
     }
 
     error(msg, status) {

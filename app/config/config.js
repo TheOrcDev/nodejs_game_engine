@@ -9,9 +9,12 @@ const config = {
         port: 8088
     },
     db: {
-        host: 'localhost',
+        host: '127.0.0.1',
         port: 27017,
         name: 'db'
+    },    
+    game: {
+        fps: 1000 / 60,
     }
 };
 

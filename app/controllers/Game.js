@@ -3,9 +3,9 @@ const GameLoop = require('./GameLoop.js');
 class Game extends GameLoop {
 
     constructor(state, lasttime) {
-        super();
-        this.State = state;
-        this.LastTime = lasttime;
+        super(state, lasttime);
+        this.state = state;
+        this.lasttime = lasttime;
         this.Objects = [];
         this.Loop = GameLoop;
     }
@@ -29,7 +29,6 @@ class Game extends GameLoop {
      */
     Update() {
         this.Objects.forEach((obj) => {
-            console.log(obj);
             obj.Update();
         });
     }

@@ -27,20 +27,52 @@ wss = new WebSocket.Server({
     }
 });
 
+
 /**
  * All WebSockets in one object, with all current users.
  */
-WebSockets = {};
+WebSockets = [];
 
 wss.on('connection', function(ws) {
+    let intervalCheck = false;
 
     ws.on('message', function(message) {
-        console.log(message);
+
     });
+
+    if (intervalCheck) {
+        return;
+    }
+
+    setInterval(function() {
+        const sockets = Object.entries(WebSockets);
+
+        let all = [];
+
+        sockets.forEach((socket) => {
+            const obj = { x: socket[1].x, y: socket[1].y }
+            all.push(obj);
+        });
+
+        sockets.forEach((socket) => {
+            try {
+                ws.send(JSON.stringify(all), function(error) {
+                    if (error == undefined)
+                        return;
+                    else
+                        return;
+                });
+            } catch (e) {
+                ws.close();
+            }
+        });
+
+    }, config.game.fps);
+    intervalCheck = true;
 
 });
 
 /**
  * Just a message of successful connection to WebSocket server
  */
-console.log('Websocket server started.');
+console.log('Websockets connected.');

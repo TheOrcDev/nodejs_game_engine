@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <canvas id="ctx" width="500" height="500"></canvas>
+</body>
+
+</html>
+<script>
+let ctx = document.getElementById('ctx').getContext('2d');
+ctx.font = '30px Arial';
+
+// Create WebSocket connection.
+const socket = new WebSocket('ws://127.0.0.1:8088');
+
+// Connection opened
+socket.addEventListener('open', function(event) {
+    socket.send('Connected to ws server.');
+});
+
+// Listen for messages
+socket.addEventListener('message', function(event) {
+    let data = JSON.parse(event.data);
+    ctx.clearRect(0, 0, 500, 500);
+	
+    data.forEach((dat) => {
+    	ctx.fillText('S', dat.x + aaa, dat.y);
+    });
+});
+</script>

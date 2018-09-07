@@ -1,30 +1,53 @@
 class MainPlayer {
 
     constructor() {
-        // this.Image = new Image();
-        // this.Image.src = '';
-
-        this.speed = 2.5;
+        this.speed = 0.1;
         this.x = 2;
         this.y = 2;
 
         this.interval = 0;
+
+        this.wsId = Math.random();
+
+
+        const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
+
+        WebSockets[this.wsId] = ws;
+        WebSockets[this.wsId].x = this.x;
+        WebSockets[this.wsId].y = this.y;
+
     }
 
     Update() {
-        // Up
-        if (38)
-            this.y -= this.speed;
-        // Down
-        if (40)
-            this.y += this.speed;
-        // Left
-        if (37)
-            this.x -= this.speed;
-        // Right
-        if (39)
-            this.x += this.speed;
+        this.x += this.speed;
+        this.y += this.speed;
 
+        this.Sync();
+
+
+        // Up
+        // if (38)
+        //     this.y -= this.speed;
+        // // Down
+        // if (40)
+        //     this.y += this.speed;
+        // // Left
+        // if (37)
+        //     this.x -= this.speed;
+        // Right
+
+
+    }
+
+    Sync() {
+        const coordinates = { x: this.x, y: this.y };
+
+        WebSockets[this.wsId].x = this.x;
+        WebSockets[this.wsId].y = this.y;
+        if (WebSockets[this.wsId].readyState === WebSocket.OPEN) {
+            WebSockets[this.wsId].send(JSON.stringify(coordinates));
+
+        }
     }
 
 }
