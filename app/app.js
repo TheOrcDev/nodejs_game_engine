@@ -20,9 +20,4 @@ const Websocket = require('./WebSocket.js');
  */
 const api = require('./api.js');
 
-GameLoop = require('./controllers/Game.js');
-Player = require('./objects/MainPlayer.js');
-Game = new GameLoop('stopped', new Date());
-
-Game.Start();
 app.listen(config.app.port);

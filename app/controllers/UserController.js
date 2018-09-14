@@ -11,7 +11,7 @@ class UserController {
      * @return json
      */
     test(req, res) {
-        // const Game = require('./Game.js');
+        // const Game = require('../game/Game.js');
         // const Player = require('../objects/MainPlayer.js');
         // const Npc = require('../objects/Npc.js');
         // const go = new Game('stopped', new Date());
@@ -39,7 +39,7 @@ class UserController {
         // res.setHeader('Content-Type', 'image/png');
         // canvas.pngStream().pipe(res);
 
-        res.sendFile('index.html', { 'root': './' });
+        res.sendFile('index.html', { 'root': '../' });
 
     }
 
@@ -100,15 +100,12 @@ class UserController {
                     // Successful login
                     req.session.userId = user._id;
 
-                    // Open WebSocket for logged user
-                    self.openWebSocket(user, req);
-
                     const playerObject = require('../objects/MainPlayer.js');
                     const Player = new playerObject(user._id);
 
-                    Game.AddObject(Player);
-
-                    res.sendFile('index.html', { 'root': './' });
+                    // Open WebSocket for logged user
+                    self.openWebSocket(user, req);
+                    res.json('User with id: ' + user._id + ' connected');
 
                 }
             });
@@ -137,32 +134,36 @@ class UserController {
     }
 
     openWebSocket(user, req) {
-        // const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
+        const ws = new WebSocket('ws://' + config.db.host + ':' + config.websocket.port);
 
-        // // event emmited when connected
-        // ws.onopen = function() {
-        //     // sending a send event to websocket server
-        //     ws.send('User with id: ' + user._id + ' connected');
+        // event emmited when connected
+        ws.onopen = function() {
+            // sending a send event to websocket server
+            ws.send('User with id: ' + user._id + ' connected');
 
-        //     WebSockets[user._id] = ws;
-        //     WebSockets[user._id]['user'] = user;
-        // }
+            user.x = Math.floor(Math.random() * (100 - 20) + 20);
+            user.y = Math.floor(Math.random() * (100 - 20) + 20);
 
-        // // event emmited when receiving message
-        // ws.on('message', function(message) {
-        //     console.log(message);
-        // });
+            ws['user'] = user;
+            ws['coordinates'] = { x: user.x, y: user.y };
 
-        // // event emmited when websocket is closed - on logout
-        // ws.on('close', function(userId) {
-        //     console.log(req.session.userId);
-        //     delete ws[req.session.userId];
-        //     delete WebSockets[req.session.userId];
+            WebSockets.push(ws);
+        }
 
-        //     // delete session object
-        //     req.session.destroy();
+        // event emmited when receiving message
+        ws.on('message', function(message) {
+            console.log(message);
+        });
 
-        // });
+        // event emmited when websocket is closed - on logout
+        ws.on('close', function(userId) {
+            delete ws[req.session.userId];
+            delete WebSockets[req.session.userId];
+
+            // delete session object
+            req.session.destroy();
+
+        });
     }
 
     error(msg, status) {

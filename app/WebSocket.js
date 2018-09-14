@@ -3,7 +3,7 @@ WebSocket = require('ws');
 /**
  * Creating WebSocket Server
  */
-wss = new WebSocket.Server({
+const wss = new WebSocket.Server({
     port: config.websocket.port,
     perMessageDeflate: {
         zlibDeflateOptions: { // See zlib defaults.
@@ -27,6 +27,24 @@ wss = new WebSocket.Server({
     }
 });
 
+function getAllPlayers() {
+    let players = [];
+    const sockets = Object.entries(WebSockets);
+
+    sockets.forEach((socket) => {
+        const Player = {
+            user: socket[1].user,
+            coordinates: socket[1].coordinates
+        };
+        if (socket) players.push(Player);
+    });
+
+    return JSON.stringify(players);
+}
+
+function randomInt(low, high) {
+    return Math.floor(Math.random() * (high - low) + low);
+}
 
 /**
  * All WebSockets in one object, with all current users.
@@ -34,31 +52,35 @@ wss = new WebSocket.Server({
 WebSockets = [];
 
 wss.on('connection', function(ws) {
+    const sockets = Object.entries(WebSockets);
+    let all = [];
+
     ws.on('message', function(message) {
+        if (message == 'newplayer') {
+            ws.send(getAllPlayers());
+        }
+        console.log(message);
     });
 
-    setInterval(function() {
-        const sockets = Object.entries(WebSockets);
+    // sockets.forEach((socket) => {
+    //     ws.on('message', function(message) {
+    //         console.log(message);
+    //     });
+    //     const obj = { x: socket[1].x, y: socket[1].y, id: socket[1].id }
+    //     all.push(obj);
+    // });
 
-        let all = [];
+    // sockets.forEach((socket) => {
+    //     try {
+    //         ws.send(getAllPlayers(), function(error) {
+    //             if (error == undefined) return;
+    //             else return;
+    //         });
+    //     } catch (e) {
+    //         ws.close();
+    //     }
+    // });
 
-        sockets.forEach((socket) => {
-            const obj = { x: socket[1].x, y: socket[1].y }
-            all.push(obj);
-        });
-
-        sockets.forEach((socket) => {
-            try {
-                ws.send(JSON.stringify(all), function(error) {
-                    if (error == undefined) return;
-                    else return;
-                });
-            } catch (e) {
-                ws.close();
-            }
-        });
-
-    }, config.game.fps);
 });
 
 /**
